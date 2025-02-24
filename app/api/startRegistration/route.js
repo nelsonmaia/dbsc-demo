@@ -1,5 +1,8 @@
 // app/api/startRegistration/route.js
 export async function GET(request) {
+
+  console.log("Request received at /api/startRegistration");
+
     // Generate a challenge and optional authorization code.
     const challenge = "DBSC-challenge-example"; // In a real app, generate a random challenge.
     const authCode = "auth-code-123";

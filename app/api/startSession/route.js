@@ -1,5 +1,8 @@
 // app/api/startSession/route.js
 export async function POST(request) {
+
+  console.log("Request received at /api/startSession");
+
     // Get the JWT from the custom header.
     const jwt = request.headers.get("sec-session-response");
     
