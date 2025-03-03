@@ -2,9 +2,13 @@
 export async function POST(request) {
   console.log("Request received at /api/startSession");
 
+  const crypto = require("crypto");
+
+  let uuid = crypto.randomUUID();
+
   // For now, ignore JWT validation.
   // Generate a fixed base64 encoded string.
-  const cookieValue = Buffer.from("SimpleCookie").toString("base64");
+  const cookieValue = uuid.toString("base64");
   console.log("Setting cookie 'auth0' with value:", cookieValue);
 
   // Create session information after (simulated) verification.

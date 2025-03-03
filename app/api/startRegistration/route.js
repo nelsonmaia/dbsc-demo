@@ -11,7 +11,14 @@ export async function GET(request) {
     // The "path" tells the browser where to send the JWT (e.g. your startSession endpoint).
     const headerValue = `(ES256 RS256); path="${encodeURIComponent("startSession")}"; challenge="${challenge}"; authorization="${authCode}"`;
 
-    const cookieValue = Buffer.from("SimpleCookie").toString("base64");
+   
+  const crypto = require("crypto");
+
+  let uuid = crypto.randomUUID();
+
+  // For now, ignore JWT validation.
+  // Generate a fixed base64 encoded string.
+  const cookieValue = uuid.toString("base64");
     console.log("Start Registration Setting cookie 'auth0' with value:", cookieValue);
     
     return new Response(
