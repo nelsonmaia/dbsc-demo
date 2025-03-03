@@ -5,6 +5,9 @@ export async function POST(request) {
 
     // Get the JWT from the custom header.
     const jwt = request.headers.get("sec-session-response");
+
+
+    console.log("Received JWT: ", jwt); 
     
     if (!jwt) {
       return new Response(
