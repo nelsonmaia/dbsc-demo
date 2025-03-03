@@ -1,5 +1,5 @@
 // app/api/startSession/route.js
-import { getRedisClient } from "../../../lib/redisClient";
+import { supabase } from "../../../lib/supabaseClient";
 import { Buffer } from "buffer";
 
 export async function POST(request) {
@@ -9,6 +9,7 @@ export async function POST(request) {
   // Extract the session id from the cookie:
   const cookieHeader = request.headers.get("cookie");
   console.log("DEBUG: Cookie header:", cookieHeader);
+
   if (!cookieHeader) {
     console.log("ERROR: No cookies in request.");
     return new Response(
@@ -26,56 +27,76 @@ export async function POST(request) {
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
+
   const cookieValue = match[1];
   console.log("DEBUG: Extracted cookie value:", cookieValue);
+
   const sessionId = Buffer.from(cookieValue, "base64").toString("utf8");
   console.log("DEBUG: Decoded sessionId from cookie:", sessionId);
 
-  // Get the session record from Redis
-  console.log("DEBUG: Connecting to Redis and fetching session record for sessionId:", sessionId);
-  const client = await getRedisClient();
-  const sessionData = await client.get(`session:${sessionId}`);
-  console.log("DEBUG: Retrieved session data from Redis:", sessionData);
-  if (!sessionData) {
-    console.log("ERROR: Session not found in Redis for sessionId:", sessionId);
+  // Retrieve the session from Supabase
+  console.log("DEBUG: Fetching session record from Supabase for sessionId:", sessionId);
+  const { data, error } = await supabase
+    .from('dbsc_sessions')
+    .select("*")
+    .eq("sessionId", sessionId)
+    .single();
+
+  if (error || !data) {
+    console.log("ERROR: Session not found or DB error:", error);
     return new Response(
       JSON.stringify({ error: "Session not found" }),
       { status: 404, headers: { "Content-Type": "application/json" } }
     );
   }
-  const sessionRecord = JSON.parse(sessionData);
-  console.log("DEBUG: Parsed session record:", sessionRecord);
 
-  // Simulate binding the session by marking it as bound
-  console.log("DEBUG: Marking session as bound.");
-  sessionRecord.bound = true;
-  await client.set(`session:${sessionId}`, JSON.stringify(sessionRecord), {
-    EX: 600,
-  });
-  console.log("DEBUG: Updated session record stored in Redis.");
+  console.log("DEBUG: Retrieved session record from Supabase:", data);
 
-  // Build the Session Registration Instructions JSON.
+  // Mark the session as bound
+  const updated = {
+    ...data,
+    bound: true,
+  };
+
+  // Update the session in Supabase
+  const { error: updateError } = await supabase
+    .from('dbsc_sessions')
+    .update({ bound: true })
+    .eq("sessionId", sessionId);
+
+  if (updateError) {
+    console.log("ERROR: Failed to update session record:", updateError);
+    return new Response(
+      JSON.stringify({ error: "Failed to update session" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  console.log("DEBUG: Session record marked as bound.");
+
+  // Build the Session Registration Instructions JSON
   const responseBody = {
     session_identifier: sessionId,
     refresh_url: "/api/refreshSession",
     scope: {
-      origin: "example.com",
+      origin: "dbsc-demo.vercel.app",
       include_site: true,
       defer_requests: true,
       scope_specification: [
-        { type: "include", domain: "trusted.example.com", path: "/only_trusted_path" },
-        { type: "exclude", domain: "untrusted.example.com", path: "/" },
-        { type: "exclude", domain: "*.example.com", path: "/static" }
+        { type: "include", domain: "trusted.dbsc-demo.vercel.app", path: "/only_trusted_path" },
+        { type: "exclude", domain: "untrusted.dbsc-demo.vercel.app", path: "/" },
+        { type: "exclude", domain: "*.dbsc-demo.vercel.app", path: "/static" }
       ]
     },
     credentials: [
       {
         type: "cookie",
         name: "auth0",
-        attributes: "Domain=example.com; Path=/; Secure; SameSite=None"
+        attributes: "Domain=dbsc-demo.vercel.app; Path=/; Secure; SameSite=None"
       }
     ]
   };
+
   console.log("DEBUG: Prepared response body:", JSON.stringify(responseBody));
 
   // Return the response along with a Set-Cookie header (could be the same or updated cookie)
@@ -84,11 +105,12 @@ export async function POST(request) {
   headers.set("Cache-Control", "no-store");
   headers.append(
     "Set-Cookie",
-    `auth0=${cookieValue}; Domain=example.com; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
+    `auth0=${cookieValue}; Domain=dbsc-demo.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
   );
-  console.log("DEBUG: Set-Cookie header prepared in response.");
 
+  console.log("DEBUG: Set-Cookie header prepared in response.");
   console.log("DEBUG: Sending response with session registration instructions.");
+
   return new Response(JSON.stringify(responseBody), {
     status: 200,
     headers,
