@@ -1,40 +1,26 @@
 // app/api/startSession/route.js
 export async function POST(request) {
-
   console.log("Request received at /api/startSession");
 
-    // Get the JWT from the custom header.
-    const jwt = request.headers.get("sec-session-response");
+  // For now, ignore JWT validation.
+  // Generate a fixed base64 encoded string.
+  const cookieValue = Buffer.from("SimpleCookie").toString("base64");
+  console.log("Setting cookie 'auth0' with value:", cookieValue);
 
+  // Create session information after (simulated) verification.
+  const sessionInfo = {
+    sessionId: Math.floor(Math.random() * 100000),
+    status: "active",
+    refreshUrl: "https://your-deployed-domain.com/api/refreshSession",
+    timestamp: new Date().toISOString()
+  };
 
-    console.log("Received JWT: ", jwt); 
-    
-    if (!jwt) {
-      return new Response(
-        JSON.stringify({ error: "Missing Sec-Session-Response header" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+  return new Response(JSON.stringify(sessionInfo), {
+    status: 200,
+    headers: { 
+      "Content-Type": "application/json",
+      // Set the 'auth0' cookie with the base64 value.
+      "Set-Cookie": `auth0=${cookieValue}; Path=/; HttpOnly; Secure; SameSite=Strict`
     }
-    
-    // Simulate JWT verification.
-    if (jwt !== "dummy-jwt") {
-      return new Response(
-        JSON.stringify({ error: "Invalid JWT" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    
-    // Create session information after successful verification.
-    const sessionInfo = {
-      sessionId: Math.floor(Math.random() * 100000),
-      status: "active",
-      refreshUrl: "https://your-deployed-domain.com/api/refreshSession",
-      timestamp: new Date().toISOString()
-    };
-    
-    return new Response(JSON.stringify(sessionInfo), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-  
+  });
+}
