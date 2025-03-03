@@ -10,6 +10,9 @@ export async function GET(request) {
     // Build the Sec-Session-Registration header value.
     // The "path" tells the browser where to send the JWT (e.g. your startSession endpoint).
     const headerValue = `(ES256 RS256); path="${encodeURIComponent("startSession")}"; challenge="${challenge}"; authorization="${authCode}"`;
+
+    const cookieValue = Buffer.from("SimpleCookie").toString("base64");
+    console.log("Start Registration Setting cookie 'auth0' with value:", cookieValue);
     
     return new Response(
       JSON.stringify({
@@ -19,7 +22,8 @@ export async function GET(request) {
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Sec-Session-Registration": headerValue
+          "Sec-Session-Registration": headerValue,
+           "Set-Cookie": `auth0=${cookieValue}; Path=/; HttpOnly; Secure; SameSite=Strict`
         }
       }
     );
