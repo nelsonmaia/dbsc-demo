@@ -1,38 +1,51 @@
 // app/api/startRegistration/route.js
+import { randomUUID } from "crypto";
+import { getRedisClient } from "../../../lib/redisClient";
+
 export async function GET(request) {
+  // Generate a unique session ID and challenge value
+  const sessionId = randomUUID();
+  const challenge = "challenge-" + randomUUID();
 
-  console.log("Request received at /api/startRegistration");
+  // Get the Redis client
+  const client = await getRedisClient();
 
-    // Generate a challenge and optional authorization code.
-    const challenge = "DBSC-challenge-example"; // In a real app, generate a random challenge.
-    const authCode = "auth-code-123";
-    
-    // Build the Sec-Session-Registration header value.
-    // The "path" tells the browser where to send the JWT (e.g. your startSession endpoint).
-    const headerValue = `(ES256 RS256); path="${encodeURIComponent("startSession")}"; challenge="${challenge}"; authorization="${authCode}"`;
+  // Store the session record in Redis (with a TTL of 600 seconds for demo)
+  const sessionRecord = JSON.stringify({
+    sessionId,
+    challenge,
+    createdAt: Date.now(),
+    bound: false, // not yet bound to a device key
+  });
+  await client.set(`session:${sessionId}`, sessionRecord, { EX: 600 });
 
-   
-  const crypto = require("crypto");
+  // For this demo, we encode the sessionId as a base64 cookie value.
+  const cookieValue = Buffer.from(sessionId).toString("base64");
 
-  let uuid = crypto.randomUUID();
+  // Prepare an authorization code (could be part of a prior flow)
+  const authCode = "auth-code-123";
 
-  // For now, ignore JWT validation.
-  // Generate a fixed base64 encoded string.
-  const cookieValue = uuid.toString("base64");
-    console.log("Start Registration Setting cookie 'auth0' with value:", cookieValue);
-    
-    return new Response(
-      JSON.stringify({
-        message: "Registration initiated. Check response headers for DBSC details."
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Sec-Session-Registration": headerValue,
-           "Set-Cookie": `auth0=${cookieValue}; Path=/; HttpOnly; Secure; SameSite=Strict`
-        }
-      }
-    );
-  }
-  
+  // Build the Sec-Session-Registration header.
+  // This tells DBSC-enabled browsers the allowed algorithms,
+  // the endpoint to call next (startSession),
+  // the challenge to sign, and the authorization value.
+  const secHeaderValue = `(ES256 RS256); path="${encodeURIComponent(
+    "startSession"
+  )}"; challenge="${challenge}"; authorization="${authCode}"`;
+
+  // Build response headers.
+  const headers = new Headers();
+  headers.set("Content-Type", "application/json");
+  headers.set("Cache-Control", "no-store");
+  headers.set("Sec-Session-Registration", secHeaderValue);
+  headers.append(
+    "Set-Cookie",
+    `auth0=${cookieValue}; Domain=example.com; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
+  );
+
+  // Return a minimal response; full session registration details come later.
+  return new Response(
+    JSON.stringify({ message: "Registration initiated" }),
+    { status: 200, headers }
+  );
+}
