@@ -5,7 +5,7 @@ import { Buffer } from "buffer";
 export async function POST(request) {
   console.log("DEBUG: Request received at /api/startSession");
 
-  // For demo, we ignore JWT validation.
+  // For demo, ignoring JWT validation.
   // Extract the session id from the cookie:
   const cookieHeader = request.headers.get("cookie");
   console.log("DEBUG: Cookie header:", cookieHeader);
@@ -53,16 +53,12 @@ export async function POST(request) {
   console.log("DEBUG: Retrieved session record from Supabase:", data);
 
   // Mark the session as bound
-  const updated = {
-    ...data,
-    bound: true,
-  };
-
-  // Update the session in Supabase
+  // Instead of updating by sessionId, we use the row's primary key (id)
+  console.log("DEBUG: Marking session as bound by row ID:", data.id);
   const { error: updateError } = await supabase
     .from('dbsc_sessions')
     .update({ bound: true })
-    .eq("sessionId", sessionId);
+    .eq("id", data.id);
 
   if (updateError) {
     console.log("ERROR: Failed to update session record:", updateError);
