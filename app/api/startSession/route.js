@@ -10,6 +10,9 @@ export async function POST(request) {
   const cookieHeader = request.headers.get("cookie");
   console.log("DEBUG: Cookie header:", cookieHeader);
 
+  const jwtproof = request.headers.get("Sec-Session-Response");
+  console.log("DEBUG: JWT proof of possession header:", jwtproof);
+
   if (!cookieHeader) {
     console.log("ERROR: No cookies in request.");
     return new Response(
