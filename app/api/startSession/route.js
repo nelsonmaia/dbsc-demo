@@ -82,14 +82,14 @@ export async function POST(request) {
       include_site: true,
       defer_requests: true,
       scope_specification: [
-        { type: "include", domain: "dbsc-demo.vercel.app", path: "/" }
+        { "type": "exclude", "domain": "*.example.com", "path": "/static" }
       ]
     },
     credentials: [
       {
         type: "cookie",
         name: "auth0",
-        attributes: "Domain=dbsc-demo.vercel.app; Path=/; Secure; SameSite=None"
+        attributes: "Domain=dbsc-demo.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None"
       }
     ]
   };
