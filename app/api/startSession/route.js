@@ -82,14 +82,14 @@ export async function POST(request) {
       include_site: true,
       defer_requests: true,
       scope_specification: [
-        { type: "include", domain: "dbsc-demo.vercel.app", path: "/*" }
+        { type: "include", domain: "*.vercel.app", path: "/*" }
       ]
     },
     credentials: [
       {
         type: "cookie",
         name: "auth0",
-        attributes: "Domain=dbsc-demo.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None"
+        attributes: "Domain=*.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None"
       }
     ]
   };
@@ -102,7 +102,7 @@ export async function POST(request) {
   headers.set("Cache-Control", "no-store");
   headers.append(
     "Set-Cookie",
-    `auth0=${cookieValue}; Domain=dbsc-demo.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
+    `auth0=${cookieValue}; Domain=*.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
   );
 
   console.log("DEBUG: Set-Cookie header prepared in response.");

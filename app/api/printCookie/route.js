@@ -7,6 +7,7 @@ export async function GET(request) {
 
   // Require a proof of possession header.
   const proof = request.headers.get("Sec-Session-Response");
+  console.log("DEBUG all headers:", request.headers);
   console.log("DEBUG: Proof of possession header:", proof);
   if (!proof) {
     console.log("ERROR: Missing proof of possession header.");
