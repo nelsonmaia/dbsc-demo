@@ -78,11 +78,11 @@ export async function POST(request) {
     session_identifier: sessionId,
     refresh_url: "/api/refreshSession",
     scope: {
-      origin: "dbsc-demo.vercel.app",
+      origin: "vercel.app",
       include_site: true,
       defer_requests: true,
       scope_specification: [
-        { type: "include", domain: "dbsc-demo.vercel.app", path: "/api/*" }
+        { type: "include", domain: "dbsc-demo.vercel.app", path: "/*" }
       ]
     },
     credentials: [
