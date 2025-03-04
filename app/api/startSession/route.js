@@ -88,7 +88,7 @@ export async function POST(request) {
     credentials: [
       {
         type: "cookie",
-        name: "auth0",
+        name: "auth0_dbsc",
         attributes: "Domain=*.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None"
       }
     ]
@@ -102,7 +102,7 @@ export async function POST(request) {
   headers.set("Cache-Control", "no-store");
   headers.append(
     "Set-Cookie",
-    `auth0=${cookieValue}; Domain=*.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
+    `auth0_dbsc=${cookieValue}; Domain=*.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
   );
 
   console.log("DEBUG: Set-Cookie header prepared in response.");
