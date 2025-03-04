@@ -100,7 +100,7 @@ export async function POST(request) {
   const headers = new Headers();
   headers.set("Content-Type", "application/json");
   headers.set("Cache-Control", "no-store");
-  headers.append(
+  headers.set(
     "Set-Cookie",
     `auth0_dbsc=${cookieValue}; Domain=*.vercel.app; Path=/; Max-Age=600; Secure; HttpOnly; SameSite=None`
   );
