@@ -9,13 +9,13 @@ export async function GET(request) {
   const proof = request.headers.get("Sec-Session-Response");
   console.log("DEBUG all headers:", request.headers);
   console.log("DEBUG: Proof of possession header:", proof);
-  if (!proof) {
-    console.log("ERROR: Missing proof of possession header.");
-    return new Response(
-      JSON.stringify({ error: "Missing proof of possession header" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
+//   if (!proof) {
+//     console.log("ERROR: Missing proof of possession header.");
+//     return new Response(
+//       JSON.stringify({ error: "Missing proof of possession header" }),
+//       { status: 400, headers: { "Content-Type": "application/json" } }
+//     );
+//   }
 
   // Extract the auth0 cookie from the request
   const cookieHeader = request.headers.get("cookie");
