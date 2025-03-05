@@ -82,7 +82,7 @@ export async function POST(request) {
       include_site: true,
       defer_requests: true,
       scope_specification: [
-        { type: "exclude", domain: "dbsc-demo.vercel.app", path: "/" }
+        { type: "include", domain: "dbsc-demo.vercel.app", path: "/" }
       ]
     },
     credentials: [
