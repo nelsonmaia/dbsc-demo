@@ -76,7 +76,7 @@ export async function POST(request) {
   // Build the Session Registration Instructions JSON
   const responseBody = {
     session_identifier: sessionId,
-    refresh_url: "/api/refreshSession",
+    refresh_url: "refreshSession",
     scope: {
       origin: "vercel.app",
       include_site: true,
