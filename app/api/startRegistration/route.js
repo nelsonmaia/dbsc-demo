@@ -1,12 +1,26 @@
 // app/api/startRegistration/route.js
 import { randomUUID } from "crypto";
 import { supabase } from "../../../lib/supabaseClient";
+import { getSession } from '@auth0/nextjs-auth0';
+
 
 export async function GET(request) {
   // Generate a unique session ID and challenge value
   const sessionId = randomUUID();
   const challenge = "challenge-" + randomUUID();
 
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Not authenticated" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+
+   // Get the authenticated user
+   const session = await getSession();
+   const user = session?.user;
+ 
   // Create a record in Supabase
   // (Replace 'dbsc_sessions' with your actual table name)
   const { error } = await supabase.from('dbsc_sessions').insert([{
@@ -24,8 +38,14 @@ export async function GET(request) {
     );
   }
 
+  // 👇 Store sessionId and user name in the cookie as a JSON object
+  const rawCookieData = {
+    sessionId,
+    name: user.name,
+  };
+
   // Encode the sessionId as a base64 cookie value for the initial cookie
-  const cookieValue = Buffer.from(sessionId).toString("base64");
+  const cookieValue = Buffer.from(rawCookieData).toString("base64");
 
   // Prepare an authorization code (could be part of a prior flow)
   const authCode = "auth-code-123";

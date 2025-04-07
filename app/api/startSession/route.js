@@ -34,7 +34,15 @@ export async function POST(request) {
   const cookieValue = match[1];
   console.log("DEBUG: Extracted cookie value:", cookieValue);
 
-  const sessionId = Buffer.from(cookieValue, "base64").toString("utf8");
+  let sessionId;
+  try {
+    const parsed = JSON.parse(rawDecoded);
+    sessionId = parsed.sessionId;
+    console.log("DEBUG: Extracted sessionId from decoded cookie:", sessionId);
+  } catch (err) {
+    console.log("WARN: Failed to parse cookie as JSON. Using raw string as sessionId.");
+    sessionId = rawDecoded; // fallback if cookie was just a string
+  }
   console.log("DEBUG: Decoded sessionId from cookie:", sessionId);
 
   // Retrieve the session from Supabase
@@ -88,7 +96,7 @@ export async function POST(request) {
     credentials: [
       {
         type: "cookie",
-        name: "auth0_dbsc",
+        name: "auth0",
         attributes: "Domain=dbsc-demo.vercel.app; Path=/; Max-Age=30; Secure; HttpOnly; SameSite=None"
       }
     ]
@@ -102,7 +110,7 @@ export async function POST(request) {
   headers.set("Cache-Control", "no-store");
   headers.set(
     "Set-Cookie",
-    `auth0_dbsc=${cookieValue}; Domain=dbsc-demo.vercel.app; Path=/; Max-Age=30; Secure; HttpOnly; SameSite=None`
+    `auth0=${cookieValue}; Domain=dbsc-demo.vercel.app; Path=/; Max-Age=30; Secure; HttpOnly; SameSite=None`
   );
 
   console.log("DEBUG: Set-Cookie header prepared in response.");

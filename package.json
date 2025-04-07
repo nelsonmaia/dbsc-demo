@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^3.7.0",
     "@supabase/supabase-js": "^2.49.1",
     "crypto": "^1.0.1",
-    "next": "15.1.7",
+    "express": "^5.1.0",
+    "express-openid-connect": "^2.18.0",
+    "next": "15.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "redis": "^4.7.0"
