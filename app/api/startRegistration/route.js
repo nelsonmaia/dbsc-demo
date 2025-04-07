@@ -11,7 +11,7 @@ export async function GET(request) {
 
   const session = await getSession();
    const user = session?.user;
-    
+
   if (!user) {
       return new Response(
         JSON.stringify({ error: "Not authenticated" }),
@@ -47,7 +47,7 @@ export async function GET(request) {
   };
 
   // Encode the sessionId as a base64 cookie value for the initial cookie
-  const cookieValue = Buffer.from(rawCookieData).toString("base64");
+  const cookieValue = Buffer.from(JSON.stringify(rawCookieData)).toString("base64");
 
   // Prepare an authorization code (could be part of a prior flow)
   const authCode = "auth-code-123";
