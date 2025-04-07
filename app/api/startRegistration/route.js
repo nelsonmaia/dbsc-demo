@@ -9,7 +9,10 @@ export async function GET(request) {
   const sessionId = randomUUID();
   const challenge = "challenge-" + randomUUID();
 
-    if (!user) {
+  const session = await getSession();
+   const user = session?.user;
+    
+  if (!user) {
       return new Response(
         JSON.stringify({ error: "Not authenticated" }),
         { status: 401, headers: { "Content-Type": "application/json" } }
@@ -18,8 +21,7 @@ export async function GET(request) {
 
 
    // Get the authenticated user
-   const session = await getSession();
-   const user = session?.user;
+   
  
   // Create a record in Supabase
   // (Replace 'dbsc_sessions' with your actual table name)
