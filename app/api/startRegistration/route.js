@@ -56,7 +56,7 @@ export async function GET(request) {
   // Tells DBSC-enabled browsers the allowed algorithms,
   // the endpoint to call next (startSession),
   // the challenge to sign, and the authorization value.
-  const secHeaderValue = `(ES256 RS256); path="${encodeURIComponent("/api/startSession")}"; challenge="${challenge}"; authorization="${authCode}"`;
+  const secHeaderValue = `(ES256 RS256); path="${encodeURIComponent("startSession")}"; challenge="${challenge}"; authorization="${authCode}"`;
 
   // Build response headers
   const headers = new Headers();
